@@ -1,6 +1,7 @@
 package controllers
 
 import (
+	"bytes"
 	"context"
 	"fmt"
 	helper "jwt-auth-users-api/helpers"
@@ -24,7 +25,13 @@ import (
 var userCollection *mongo.Collection = database.OpenCollection(database.Client, "user")
 var validate = validator.New()
 
-func HashPassword()
+func HashPassword(password string) string {
+	bcrypt.GenerateFromPassword([]byte(password), 14)
+	if err != nil {
+		log.Panic(err)
+	}
+	return string(bytes)
+}
 
 func VerifyPassword(userPassword string, providedPassword string) (bool, string) {
 	err := bcrypt.CompareHashAndPassword([]byte(providedPassword), []byte(userPassword))
@@ -62,6 +69,9 @@ func Signup() gin.HandlerFunc {
 			log.Panic(err)
 			c.JSON(http.StatusInternalServerError, gin.H{"error": "error occurred while checking for the email address"})
 		}
+		
+		password := HashPassword(*user.Password)
+		user.Password = &password
 
 		count, err := userCollection.CountDocuments(ctx, bson.M{"phone": user.Phone})
 		defer cancel()
@@ -112,6 +122,23 @@ func Login() gin.HandlerFunc {
 
 		passwordIsValid, msg := VerifyPassword(*user.Password, *&foundUser.Password)
 		defer cancel()
+		if passwordIsValid != true {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": msg})
+			return
+		}
+
+		if foundUser.Email == nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": "user not found"})
+		}
+		token, refreshToken, _ := helper.GenerateAllTokens(*foundUser.Email, *foundUser.FirstName, *foundUser.LastName, *foundUser.UserType, *foundUser.UserID)
+		helper.UpdateAllTokens(token, refreshToken, foundUser.UserID)
+		err = userCollection.FindOne(ctx, bson.M{"user_id": foundUser.UserID}).Decode(&foundUser)
+
+		if err != nil {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err.Error()})
+			return
+		}
+		c.JSON(http.StatusOK, foundUser)
 	}
 }
 
