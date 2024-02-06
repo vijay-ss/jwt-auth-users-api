@@ -3,7 +3,7 @@ package middleware
 import (
 	"fmt"
 	"net/http"
-	helpers "jwt-auth-users-api/helpers"
+	helpers "github.com/vijay-ss/jwt-auth-users-api/helpers"
 	"github.com/gin-gonic/gin"
 )
 
@@ -17,6 +17,17 @@ func Authenticate() gin.HandlerFunc{
 		}
 
 		claims, err := helpers.ValidateToken(clientToken)
-		
+		if err != "" {
+			c.JSON(http.StatusInternalServerError, gin.H{"error": err})
+			c.Abort()
+			return
+		}
+
+		c.Set("email", claims.Email)
+		c.Set("first_name", claims.FirstName)
+		c.Set("last_name", claims.LastName)
+		c.Set("uid", claims.Uid)
+		c.Set("user_type", claims.UserType)
+		c.Next()
 	}
 }

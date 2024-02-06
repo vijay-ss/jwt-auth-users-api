@@ -1,8 +1,8 @@
 package routes
 
 import (
-	controller "jwt-auth-users-api/controllers"
-	"jwt-auth-users-api/middleware"
+	controller "github.com/vijay-ss/jwt-auth-users-api/controllers"
+	"github.com/vijay-ss/jwt-auth-users-api/middleware"
 	"github.com/gin-gonic/gin"
 )
 

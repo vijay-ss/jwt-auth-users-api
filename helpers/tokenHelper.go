@@ -92,8 +92,8 @@ func UpdateAllTokens(signedToken string, signedRefreshToken string, userId strin
 
 	var updateObj primitive.D
 
-	updateObj = append(updateObj, bson.E{"token": signedToken})
-	updateObj = append(updateObj, bson.E{"refresh_token": signedRefreshToken})
+	updateObj = append(updateObj, bson.E{"token", signedToken})
+	updateObj = append(updateObj, bson.E{"refresh_token", signedRefreshToken})
 
 	Updated_at, _ := time.Parse(time.RFC3339, time.Now().Format(time.RFC3339))
 	updateObj = append(updateObj, bson.E{"updated_at", Updated_at})
