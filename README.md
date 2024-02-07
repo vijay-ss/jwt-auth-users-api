@@ -6,11 +6,14 @@ A backend system for authenticating users using JWT.
 - Gin
 - Gonic
 - MongoDB
+- Docker Compose (for MongoDB)
 - JWT authentication
 
-## Apis
+## Api Endpoints
 - Signup
 - Login
 - List users
-- Validation
+- Get user by id
+
+Validation middleware is used for Authentication.
 
